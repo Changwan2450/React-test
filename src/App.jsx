@@ -2,11 +2,12 @@ import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import Header from './Header';
 import Footer from './Footer';
-import OrderList from './OrderList'; // 👈 이거 다시 살려냈다 형
+import OrderList from './OrderList';
 
 const API_BASE = "http://100.124.152.75:8080/api";
 
 function App() {
+    // 1. 상태 관리 (모든 기능용)
     const [foods, setFoods] = useState([]);
     const [boards, setBoards] = useState([]);
     const [members, setMembers] = useState([]);
@@ -22,10 +23,11 @@ function App() {
     const [isBoardEdit, setIsBoardEdit] = useState(false);
     const [editingMemberId, setEditingMemberId] = useState(null);
     const [memberEditForm, setMemberEditForm] = useState({name: ''});
+    const [searchKeyword, setSearchKeyword] = useState(''); // 검색어 상태
 
     const isAdmin = loginUser?.id === 'admin';
 
-    // 데이터 로드 함수
+    // 2. 데이터 리프레시 로직
     const refreshList = async () => {
         try {
             const res = await axios.get(`${API_BASE}/food/list`);
@@ -60,7 +62,13 @@ function App() {
         init();
     }, [isAdmin]);
 
-    // --- 핸들러들 ---
+    // 3. 검색 필터링 (게시판용)
+    const filteredBoards = boards.filter(b =>
+        b.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+        b.writer.toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+
+    // 4. 모든 핸들러 (삭제, 강퇴, 주문, 검색 등)
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
@@ -70,7 +78,7 @@ function App() {
                 setView('food');
             } else alert("아이디/비번 확인해 형!");
         } catch {
-            alert("서버 안본다;");
+            alert("서버 체크해봐;");
         }
     };
 
@@ -158,7 +166,7 @@ function App() {
             setView('login');
             return;
         }
-        const amount = prompt(`${food.foodName} 몇개 주문할 거야?`, "1");
+        const amount = prompt(`${food.foodName} 몇개?`, "1");
         if (!amount) return;
         try {
             await axios.post(`${API_BASE}/order/register`, {
@@ -166,7 +174,7 @@ function App() {
                 id: loginUser.id,
                 amount: parseInt(amount)
             });
-            alert("주문 성공! 주문내역 확인해봐.");
+            alert("주문 완료! 주문내역 확인해봐.");
             setView('order');
         } catch {
             alert("주문 실패!");
@@ -181,7 +189,7 @@ function App() {
             }} onViewChange={setView}/>
 
             <main className="container flex-grow-1 py-5">
-                {/* 탭 버튼 (주문내역 버튼 포함) */}
+                {/* 탭 네비게이션 */}
                 <div className="d-flex justify-content-center gap-2 mb-5 flex-wrap">
                     <button
                         className={`btn ${view === 'food' ? 'btn-dark' : 'btn-white shadow-sm'} rounded-pill px-4 fw-bold`}
@@ -203,7 +211,7 @@ function App() {
                         onClick={() => setView('memberList')}>👥 멤버관리</button>}
                 </div>
 
-                {/* --- 뷰 1: 메뉴판 --- */}
+                {/* --- 뷰 1: 메뉴판 (삭제 버튼 포함) --- */}
                 {view === 'food' && (
                     <div className="row g-4">
                         {isAdmin && (
@@ -254,22 +262,32 @@ function App() {
                     </div>
                 )}
 
-                {/* --- 뷰 2: 주문내역 (형이 찾던 거!) --- */}
+                {/* --- 뷰 2: 주문내역 --- */}
                 {view === 'order' && <OrderList loginUser={loginUser}/>}
 
-                {/* --- 뷰 3: 게시판 --- */}
+                {/* --- 뷰 3: 게시판 (검색 기능 포함) --- */}
                 {view === 'board' && (
                     <div className="card border-0 shadow-sm p-4 rounded-4">
                         {boardMode === 'list' ? (
                             <>
-                                <div className="d-flex justify-content-between align-items-center mb-4">
+                                <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                                     <h4 className="fw-bold m-0">📝 커뮤니티</h4>
-                                    {loginUser &&
-                                        <button className="btn btn-primary rounded-pill px-4 shadow-sm" onClick={() => {
-                                            setBoardMode('write');
-                                            setBoardForm({title: '', content: ''});
-                                            setIsBoardEdit(false);
-                                        }}>글쓰기</button>}
+                                    <div className="d-flex gap-2 col-12 col-md-7">
+                                        <div
+                                            className="input-group shadow-sm border rounded-pill overflow-hidden bg-white">
+                                            <span
+                                                className="input-group-text bg-white border-0 ps-3 text-muted">🔍</span>
+                                            <input type="text" className="form-control border-0 py-2 shadow-none"
+                                                   placeholder="제목 또는 작성자 검색" value={searchKeyword}
+                                                   onChange={(e) => setSearchKeyword(e.target.value)}/>
+                                        </div>
+                                        {loginUser && <button className="btn btn-dark rounded-pill px-4 text-nowrap"
+                                                              onClick={() => {
+                                                                  setBoardMode('write');
+                                                                  setBoardForm({title: '', content: ''});
+                                                                  setIsBoardEdit(false);
+                                                              }}>글쓰기</button>}
+                                    </div>
                                 </div>
                                 <div className="table-responsive">
                                     <table className="table table-hover align-middle">
@@ -281,7 +299,7 @@ function App() {
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {boards.map(b => (
+                                        {filteredBoards.map(b => (
                                             <tr key={b.bno} onClick={() => {
                                                 setSelectedBoard(b);
                                                 setBoardMode('read');
@@ -293,6 +311,9 @@ function App() {
                                                 </td>
                                             </tr>
                                         ))}
+                                        {filteredBoards.length === 0 && <tr>
+                                            <td colSpan="3" className="text-center py-5 text-muted">검색 결과가 없어 형;</td>
+                                        </tr>}
                                         </tbody>
                                     </table>
                                 </div>
@@ -322,7 +343,7 @@ function App() {
                                 <hr/>
                                 <div className="py-4"
                                      style={{whiteSpace: 'pre-wrap', minHeight: '150px'}}>{selectedBoard?.content}</div>
-                                <button className="btn btn-dark rounded-pill px-4"
+                                <button className="btn btn-dark rounded-pill px-4 fw-bold"
                                         onClick={() => setBoardMode('list')}>목록으로
                                 </button>
                             </div>
@@ -341,7 +362,7 @@ function App() {
                                     <button className="btn btn-primary rounded-pill px-5 fw-bold"
                                             onClick={handleBoardSubmit}>저장하기
                                     </button>
-                                    <button className="btn btn-white rounded-pill px-4"
+                                    <button className="btn btn-white rounded-pill px-4 border"
                                             onClick={() => setBoardMode('list')}>취소
                                     </button>
                                 </div>
@@ -350,10 +371,10 @@ function App() {
                     </div>
                 )}
 
-                {/* --- 뷰 4: 멤버관리 --- */}
+                {/* --- 뷰 4: 멤버관리 (강퇴 포함) --- */}
                 {view === 'memberList' && isAdmin && (
                     <div className="card border-0 shadow-sm p-4 rounded-4">
-                        <h4 className="fw-bold mb-4">👥 멤버 관리</h4>
+                        <h4 className="fw-bold mb-4">👥 멤버 시스템</h4>
                         <div className="table-responsive">
                             <table className="table align-middle text-center">
                                 <thead className="table-light">
@@ -367,14 +388,10 @@ function App() {
                                 {members.map(m => (
                                     <tr key={m.id}>
                                         <td className="py-3 px-4 fw-bold">{m.id}</td>
-                                        <td>
-                                            {editingMemberId === m.id ?
-                                                <input className="form-control form-control-sm mx-auto"
-                                                       style={{maxWidth: '150px'}} value={memberEditForm.name}
-                                                       onChange={e => setMemberEditForm({name: e.target.value})}/> :
-                                                m.name || '형'
-                                            }
-                                        </td>
+                                        <td>{editingMemberId === m.id ?
+                                            <input className="form-control form-control-sm mx-auto w-50"
+                                                   value={memberEditForm.name}
+                                                   onChange={e => setMemberEditForm({name: e.target.value})}/> : m.name || '형'}</td>
                                         <td>
                                             {m.id !== 'admin' && (
                                                 <div className="d-flex gap-2 justify-content-center">
@@ -386,8 +403,7 @@ function App() {
                                                             onClick={() => {
                                                                 setEditingMemberId(m.id);
                                                                 setMemberEditForm({name: m.name});
-                                                            }}>수정</button>
-                                                    }
+                                                            }}>수정</button>}
                                                     <button className="btn btn-sm btn-danger rounded-pill px-3"
                                                             onClick={() => handleDeleteMember(m.id)}>강퇴
                                                     </button>
@@ -409,13 +425,14 @@ function App() {
                              style={{maxWidth: '400px', width: '100%'}}>
                             <h3 className="fw-bold text-center mb-4">LOGIN</h3>
                             <form onSubmit={handleLogin}>
-                                <input className="form-control mb-3 rounded-pill px-4 border-0 bg-light py-2"
+                                <input className="form-control mb-3 rounded-pill px-4 py-2 bg-light border-0"
                                        placeholder="ID" onChange={e => setLoginForm({...loginForm, id: e.target.value})}
                                        required/>
-                                <input className="form-control mb-4 rounded-pill px-4 border-0 bg-light py-2"
+                                <input className="form-control mb-4 rounded-pill px-4 py-2 bg-light border-0"
                                        type="password" placeholder="PW"
                                        onChange={e => setLoginForm({...loginForm, pw: e.target.value})} required/>
-                                <button className="btn btn-warning w-100 py-2 rounded-pill fw-bold text-white">로그인
+                                <button
+                                    className="btn btn-warning w-100 py-2 rounded-pill fw-bold text-white shadow-sm">로그인
                                 </button>
                             </form>
                         </div>
