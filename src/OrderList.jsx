@@ -73,7 +73,7 @@ const OrderList = () => {
                     ) : (
                         <tr>
                             <td colSpan="5" className="py-5 text-muted">
-                                아직 주문이 없네 형... 장사 안 해? zz;
+                                아직 주문이 없네 .. 장사 안 해? ;
                             </td>
                         </tr>
                     )}

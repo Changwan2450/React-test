@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Header.jsx 내부 (props로 loginUser를 받고 있다고 가정)
 const Header = (props) => {
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
