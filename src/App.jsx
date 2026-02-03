@@ -31,6 +31,7 @@ function App() {
     const refreshList = async () => {
         try {
             const res = await axios.get(`${API_BASE}/food/list`);
+            console.log("지금 들어온 메뉴들: ", res.data);
             setFoods(res.data);
         } catch (e) {
             console.error(e);
@@ -417,7 +418,7 @@ function App() {
                         </div>
                     </div>
                 )}
-
+                    
                 {/* --- 뷰 5: 로그인 --- */}
                 {view === 'login' && (
                     <div className="d-flex justify-content-center py-5">
