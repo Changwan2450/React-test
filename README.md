@@ -1,16 +1,40 @@
-# React + Vite
+# 🚀 Member Full-Stack Service
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 🌟 Tech Stack  
+| 기술          | 아이콘         |
+|---------------|----------------|
+| Java          | ![Java](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=java&logoColor=white) |
+| Spring        | ![Spring](https://img.shields.io/badge/Spring-6DB33F?style=flat&logo=spring&logoColor=white) |
+| MyBatis       | ![MyBatis](https://img.shields.io/badge/MyBatis-4D4D4D?style=flat&logo=mybatis&logoColor=white) |
+| Oracle        | ![Oracle](https://img.shields.io/badge/Oracle-F80000?style=flat&logo=oracle&logoColor=white) |
+| JSP           | ![JSP](https://img.shields.io/badge/JSP-FF61A6?style=flat&logo=apache&logoColor=white) |
 
-Currently, two official plugins are available:
+## 📂 프로젝트 구조
+```
+./
+├── index.html
+├── vite.config.js
+├── README.md
+├── public
+│   └── vite.svg
+├── package-lock.json
+├── package.json
+├── eslint.config.js
+└── src
+    ├── header.jsx
+    ├── OrderList.jsx
+    ├── footer.jsx
+    ├── App.css
+    ├── index.css
+    ├── main.jsx
+    └── App.jsx
+    └── assets
+        └── react.svg
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📊 Controller 역할 구분
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Controller Type    | 역할                              |
+|---------------------|-----------------------------------|
+| 일반 Controller     | JSP 포워딩을 통한 HTML 반환      |
+| RestController      | JSON 응답을 통한 API 서비스 제공 |
