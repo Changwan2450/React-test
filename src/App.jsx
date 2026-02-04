@@ -308,7 +308,9 @@ function App() {
                         <div className="position-absolute top-0 end-0 p-2 d-flex gap-1">
                           <button
                             className="btn btn-sm btn-light shadow-sm rounded-circle"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation(); // 2. 부모 요소로 이벤트가 퍼지는 거 차단
+                              console.log("수정 버튼 눌림! 데이터:", f); // 3. 로그 찍히는지 확인
                               setIsFoodEdit(true);
                               setEditFoodId(f.foodId);
                               setFoodForm({
